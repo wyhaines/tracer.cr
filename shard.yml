@@ -1,0 +1,9 @@
+name: call_trace
+version: 0.1.0
+
+authors:
+  - Kirk Haines <wyhaines@gmail.com>
+
+crystal: 1.0.0
+
+license: MIT
