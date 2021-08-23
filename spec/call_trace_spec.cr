@@ -1,9 +1,11 @@
 require "./spec_helper"
 
 describe CallTrace do
-  # TODO: Write tests
-
   it "works" do
-    false.should eq(true)
+    obj = TestObj.new
+
+    (rand(10) + 2).times { f.a }
+    (rand(6) + 4).times { f.b(123) }
+    f.c(123, "this")
   end
 end

@@ -4,6 +4,6 @@ version: 0.1.0
 authors:
   - Kirk Haines <wyhaines@gmail.com>
 
-crystal: 1.0.0
+crystal: "*"
 
-license: MIT
+license: "Apache 2.0"
