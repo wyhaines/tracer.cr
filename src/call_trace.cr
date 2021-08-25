@@ -26,17 +26,17 @@ module CallTrace
 
   @call_trace_summary : Hash(String, Hash(String, Int64)) = Hash(String, Hash(String, Int64)).new
 
-  def calltrace_add_trace(meth, callstack)
+  def calltrace_add_trace(meth, callstack, mode = :summary)
     @call_trace_log[meth] << {timestamp: Time.local, caller: callstack.printable_backtrace[1]}
   end
 
-  macro enable(target)
+  macro calltrace_enable(target)
   end
 
   macro included
     # Check if CallTrace annotation exists on the type. If it does, then its values are defaults for all methods in the type.
     macro method_added(method)
-      {%
+      \{%
         trace_enabled = false
         trace_mode = :summary
 
@@ -44,13 +44,18 @@ module CallTrace
           trace_enabled = ann[:enabled] if ann[:enabled]
           trace_mode = ann[:mode] if ann[:mode]
         end
+
+        if ann = method.annotation(CallTrace)
+          trace_enabled = ann[:enabled] if ann[:enabled]
+          trace_mode = ann[:mode] if ann[:mode]
+        end
       %}
-      {% if trace_enabled %}
+      \{% if trace_enabled %}
         \{{ method.stringify.split("\n")[0].id }}
-        self.calltrace_add_trace(\{{ method.name.stringify }}, Exception::CallStack.new, {{ trace_mode }})
+        self.calltrace_add_trace(\{{ method.name.stringify }}, Exception::CallStack.new, \{{ trace_mode }})
         \{{ method.body.id }}
         \{{ "end".id }}
-      {% end %}
+      \{% end %}
     end
   end
 end

@@ -4,6 +4,7 @@ require "../src/call_trace"
 class TestObj
   include CallTrace
 
+  @[CallTrace(enabled: true)]
   def a
     7
   end
