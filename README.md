@@ -1,4 +1,4 @@
-# call_trace
+# Tracer.cr
 
 TODO: Write a description here
 
@@ -9,7 +9,7 @@ TODO: Write a description here
    ```yaml
    dependencies:
      call_trace:
-       github: your-github-user/call_trace
+       github: wyhaines/tracer.cr
    ```
 
 2. Run `shards install`
@@ -17,7 +17,7 @@ TODO: Write a description here
 ## Usage
 
 ```crystal
-require "call_trace"
+require "tracer"
 ```
 
 TODO: Write usage instructions here
@@ -28,7 +28,7 @@ TODO: Write development instructions here
 
 ## Contributing
 
-1. Fork it (<https://github.com/your-github-user/call_trace/fork>)
+1. Fork it (<https://github.com/wyhaines/tracer.cr/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -36,4 +36,4 @@ TODO: Write development instructions here
 
 ## Contributors
 
-- [Kirk Haines](https://github.com/your-github-user) - creator and maintainer
+- [Kirk Haines](https://github.com/wyhaines) - creator and maintainer

@@ -1,12 +1,17 @@
 require "spec"
-require "../src/call_trace"
+require "../src/tracer"
 
 class TestObj
-  include CallTrace
+  include Tracer
 
-  @[CallTrace(enabled: true)]
-  def a
+  @[Trace(enabled: true)]
+  private def a
+    puts "priv"
     7
+  end
+
+  def a(x)
+    7 * x
   end
 
   def b(x)
@@ -18,12 +23,28 @@ class TestObj
     {this => that}
   end
 
-  def finalize
-    @call_trace_log.each do |key, value|
-      puts "#{key}:"
-      value.each do |ntup|
-        puts "   #{ntup[:caller].chomp} -> #{ntup[:timestamp]}"
-      end
-    end
+  add_method_hooks(
+    "a",
+    ->() { 
+      start_time = Time.monotonic
+      puts "start #{hook_method_name}"
+      previous_def
+      puts "end runtime #{Time.monotonic - start_time}"
+    }
+  )
+
+  def flag(zelf, method, phase)
+    puts "klass: #{zelf.class}\nmethod: #{method}\nphase: #{phase}"
   end
+  
+  add_method_tracer(
+    "c",
+    ->(zelf : self.class, method : String, phase : String) {puts ">> klass: #{zelf.class}\nmethod: #{method}\nphase: #{phase}"}
+  )
+
+  add_method_tracer(
+    "b",
+    "flag"
+  )
+
 end
