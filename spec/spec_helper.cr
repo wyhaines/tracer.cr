@@ -34,8 +34,23 @@ class TestObj
     {this => that}
   end
 
+  def nop
+    :nop
+  end
+
+  def traced_nop
+    :traced_nop
+  end
+
   def self.a
     77
+  end
+
+  def self.b(n)
+    loop do
+      num = rand()
+      break num if num > n
+    end
   end
 
   add_method_hooks(
@@ -54,23 +69,40 @@ class TestObj
     }
   )
 
-  def flag(zelf, method, phase, identifier, counter)
+  def self.flag(zelf, method, phase, identifier, counter)
     puts "klass: #{zelf.class}\nmethod: #{method}\nphase: #{phase}\nidentifier: #{identifier}"
     @@log[{identifier, counter}] << Time.monotonic
   end
+
+  def flag(zelf, method, phase, identifier, counter)
+    self.class.flag(zelf, method, phase, identifier, counter)
+  end
+
+  def nothingburger(caller, method, phase, identifier, counter)
+  end
   
-  add_method_tracer(
+  trace(
     "c",
     ->() {@@log[{__trace_method_identifier__, __trace_method_call_counter__}] << Time.monotonic}
   )
 
-  add_method_tracer(
+  trace(
     "self.a",
     "flag"
   )
 
-  add_method_tracer(
+  trace(
     "b",
     "flag"
+  )
+
+  trace(
+    "TestObj.b",
+    "flag"
+  )
+
+  trace(
+    "traced_nop",
+    "nothingburger"
   )
 end

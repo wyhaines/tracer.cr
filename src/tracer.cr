@@ -11,7 +11,49 @@ module Tracer
   end
 
   macro add_method_hooks(method_name, method_body = "", block_def = nil)
-    {% methods = @type.methods.select {|m| m.name.id == method_name} %}
+    {%
+      if method_name.includes?(".")
+        receiver_name, method_name = method_name.split(".")
+
+        if receiver_name == "self"
+          receiver = @type.class
+        else
+          receiver = nil
+          search_paths = [@top_level]
+          search_paths << @type.class unless receiver_name[0..1] == "::"
+
+          search_paths.each do |search_path|
+            puts "***** SEARCHING #{search_path}"
+            unless receiver
+              found_the_receiver = true
+              parts = receiver_name.split("::")
+              puts "***** ITERATING #{parts}"
+              parts.each do |part|
+                if found_the_receiver
+                  constant_id = search_path.constants.find {|c| c.id == part}
+                  puts "***** GOT #{constant_id} for #{part}"
+                  unless constant_id
+                    found_the_receiver = false
+                  else
+                    search_path = search_path.constant(constant_id)
+                    found_the_receiver = false if search_path.nil?
+                    puts "***** SEARCH_PATH(#{found_the_receiver}) == #{search_path}"
+                  end
+                end
+              end
+
+              if found_the_receiver
+                puts "***** GOT RECEIVER #{search_path}"
+                receiver = search_path.class
+              end
+            end
+          end
+        end
+      else
+        receiver = @type
+      end
+    %}
+    {% methods = receiver ? receiver.methods.select {|m| m.name.id == method_name} : [] of Nil %}
     {% for method in methods %}
     {%
       method_args = method.args
@@ -35,7 +77,7 @@ module Tracer
         trace_method_identifier = "#{method_name.id}__#{method.line_number.id}X#{method.column_number.id}"
       end
     %}
-    {{ method.visibility.id == "public" ? "".id : method.visibility.id }} def {{ method.name.id }}{{ !method_args.empty? ? "(".id : "".id }}{{ method_args.join(", ").id }}{{ !method_args.empty? ? ")".id : "".id }}{{ method.return_type.id != "" ? " : #{method.return_type.id}".id : "".id }}
+    {{ method.visibility.id == "public" ? "".id : method.visibility.id }} def {{ receiver == @type ? "".id : "#{receiver.id.gsub(/\.class/,"")}.".id }}{{ method.name.id }}{{ !method_args.empty? ? "(".id : "".id }}{{ method_args.join(", ").id }}{{ !method_args.empty? ? ")".id : "".id }}{{ method.return_type.id != "" ? " : #{method.return_type.id}".id : "".id }}
       __trace_method_call_counter__ = METHOD_COUNTER[0]
       METHOD_COUNTER[0] = METHOD_COUNTER[0] &+ 1  
       __trace_method_name__ = {{ method_name }}
@@ -47,7 +89,7 @@ module Tracer
     {% debug %}
   end
 
-  macro add_method_tracer(method_name, callback, block_def = nil)
+  macro trace(method_name, callback, block_def = nil)
     add_method_hooks(
       {{ method_name }},
       ->() {
@@ -98,6 +140,4 @@ module Tracer
     {% debug %}
   end
 
-  macro included
-  end
 end
