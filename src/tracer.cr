@@ -3,10 +3,8 @@ module Tracer
 
   METHOD_COUNTER = [0_u128]
 
-  # This annotation can be used to turn on, to configure call tracing for a given method.
-  # The mode of trace will either be detail or summary, and it defaults to summary.
-  # It is specified with a key of "mode", and a value of either :detail or :summary.
-  # If the "inject" key is present, it should be either a proc or a method 
+  # This annotation will be used to support annotation based trace management.
+  # This feature hasn't been built yet.
   annotation Trace
   end
 
@@ -23,27 +21,27 @@ module Tracer
           search_paths << @type.class unless receiver_name[0..1] == "::"
 
           search_paths.each do |search_path|
-            puts "***** SEARCHING #{search_path}"
+            puts "***** SEARCHING #{search_path}" if flag? :DEBUG
             unless receiver
               found_the_receiver = true
               parts = receiver_name.split("::")
-              puts "***** ITERATING #{parts}"
+              puts "***** ITERATING #{parts}" if flag? :DEBUG
               parts.each do |part|
                 if found_the_receiver
                   constant_id = search_path.constants.find {|c| c.id == part}
-                  puts "***** GOT #{constant_id} for #{part}"
+                  puts "***** GOT #{constant_id} for #{part}" if flag? :DEBUG
                   unless constant_id
                     found_the_receiver = false
                   else
                     search_path = search_path.constant(constant_id)
                     found_the_receiver = false if search_path.nil?
-                    puts "***** SEARCH_PATH(#{found_the_receiver}) == #{search_path}"
+                    puts "***** SEARCH_PATH(#{found_the_receiver}) == #{search_path}" if flag? :DEBUG
                   end
                 end
               end
 
               if found_the_receiver
-                puts "***** GOT RECEIVER #{search_path}"
+                puts "***** GOT RECEIVER #{search_path}" if flag? :DEBUG
                 receiver = search_path.class
               end
             end
@@ -86,7 +84,7 @@ module Tracer
       {{ method_body.is_a?(StringLiteral) ? method_body.id : method_body.body.id.gsub(/previous_def\(\)/,"previous_def").id }}
     end
     {% end %}
-    {% debug %}
+    {% debug  if flag? :DEBUG %}
   end
 
   macro trace(method_name, callback, block_def = nil)
@@ -137,7 +135,7 @@ module Tracer
       },
       {{ block_def }}
     )
-    {% debug %}
+    {% debug  if flag? :DEBUG %}
   end
 
 end

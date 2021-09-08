@@ -1,6 +1,15 @@
 # Tracer.cr
 
-TODO: Write a description here
+Tracer.cr provides a facility for attaching tracing code to methods in Crystal code.
+
+This library is pretty low-level. It provides a simple interface to use to attach functionality to existing code, but doesn't provide any higher level functionality around that. It is intended to be a building block for constructing that higher level functionality - debugging, performance monitoring, or execution auditing, for example.
+
+It works through a combination of macros, and leveraging the `previous_def` capability to invoke the previously defined version of a library.
+
+The current version nominally works, but it is missing some key features that are on the short term roadmap:
+
+1. Add support for the `Trace` annotation so that tracing can be managed via annotations.
+2. Add support for dynamically disabling trace code. It would be really nifty if we could do object inheritance chain manipulation in Crystal like one can in Ruby, when leveraging `prepend` for this sort of stuff, but Crystal's compiled nature doesn't make it dynamic in that way, so the plan is to enable dynamic disabling of trace code through a lookup table and simple `if` statements. It will have some impact on performance, even when the trace code is disabled, but the impact should be extremely small.
 
 ## Installation
 
@@ -20,11 +29,12 @@ TODO: Write a description here
 require "tracer"
 ```
 
-TODO: Write usage instructions here
+```
+trace()
 
 ## Development
 
-TODO: Write development instructions here
+If you want to help with the development, email me, and fork the repo. Work on your changes in a branch out of your own repo, and when it is ready (with documentation and specs), send me a pull request telling me what you have done, why you have done it, and what you have done to make sure that it works as expected.
 
 ## Contributing
 

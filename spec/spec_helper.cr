@@ -10,14 +10,11 @@ class TestObj
     @@log
   end
 
-  @[Trace(enabled: true)]
-
   def a
     aa
   end
 
   private def aa
-    puts "priv"
     7
   end
 
@@ -105,4 +102,16 @@ class TestObj
     "traced_nop",
     "nothingburger"
   )
+end
+
+class ExternalTraceManager
+  @@log : Hash(Tuple(String, UInt128), Array(Time::Span)) = Hash(Tuple(String, UInt128), Array(Time::Span)).new {|h,k| h[k] = [] of Time::Span}
+
+  def self.log(caller, method, phase, identifier, counter)
+    @@log[{identifier, counter}] << Time.monotonic
+  end
+
+  def self.log
+    @@log
+  end
 end
