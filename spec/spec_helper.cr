@@ -115,3 +115,16 @@ class ExternalTraceManager
     @@log
   end
 end
+
+module TestModule
+  include Tracer
+
+  def foo
+    7
+  end
+
+  trace(
+    "foo",
+    ->() {@@log[{__trace_method_identifier__, __trace_method_call_counter__}] << Time.monotonic}
+  )
+end
