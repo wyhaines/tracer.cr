@@ -63,6 +63,40 @@ trace("my_method", ->() {puts "Doing tracing stuff"})
 trace("my_method", ->(method_name : String) {puts "Tracing #{method_name}"})
 ```
 
+```crystal
+trace("my_method", ->(
+  method_name : String,
+  phase : Symbol
+) {puts "Tracing #{method_name} in phase #{phase}"})
+```
+
+```crystal
+trace("my_method", ->(
+  method_name : String,
+  phase : Symbol,
+  method_identifier : String
+) {puts "Tracing #{method_name} in phase #{phase}; unique method identifier is #{method_identifier}"})
+```
+
+```crystal
+trace("my_method", ->(
+  method_name : String,
+  phase : Symbol,
+  method_identifier : String,
+  method_counter : U128
+) {puts "Tracing #{method_name} in phase #{phase}; unique method identifier is #{method_identifier}; method counter is #{method_counter}"})
+```
+
+```crystal
+trace("my_method", ->(
+  method_name : String,
+  phase : Symbol,
+  method_identifier : String,
+  method_counter : U128,
+  caller : Object
+) {puts "Tracing #{method_name} on #{caller} in phase #{phase}; unique method identifier is #{method_identifier}; method counter is #{method_counter}"}
+```
+
 ## Development
 
 If you want to help with the development, email me, and fork the repo. Work on your changes in a branch out of your own repo, and when it is ready (with documentation and specs), send me a pull request telling me what you have done, why you have done it, and what you have done to make sure that it works as expected.
