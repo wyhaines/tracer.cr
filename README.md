@@ -1,5 +1,7 @@
 # Tracer.cr
 
+*WARNING: This code is super-alpha. Details about its interface are likely to change.*
+  
 Tracer.cr provides a facility for attaching tracing code to methods in Crystal code.
 
 This library is pretty low-level. It provides a simple interface to use to attach functionality to existing code, but doesn't provide any higher level functionality around that. It is intended to be a building block for constructing that higher level functionality - debugging, performance monitoring, or execution auditing, for example.
@@ -29,8 +31,37 @@ The current version nominally works, but it is missing some key features that ar
 require "tracer"
 ```
 
+To use the tracer, require the shard. This will define macros to support all other tracing tasks.
+
+The main macro that is used to establish tracing functions is `trace`. It takes two required arguments, and one optional argument.
+
+`trace(METHOD_NAME, CALLBACK, BLOCK_DEFINITION)`
+
+The `METHOD_NAME` should be a `String` that is the name of the method that is being traced. The `CALLBACK` can be either a string specifying a method to call both before and after `METHOD_NAME` is called, or a `Proc` that will be invoked both before and after `METHOD_NAME` is called.
+
+A callback method is expected to take five arguments:
+
+```crystal
+def callback(caller, method_name, phase, method_identifier, method_counter)
 ```
-trace()
+
+* *method_name*: This will contain the name of the method that is being traced.
+* *phase*: This will contain the phase of the tracing. This will be one of `:before` or `:after`, depending on whether the callback is being invoked before the method being traced, or after it.
+* *method_identifier*: This will contain the identifier of the method being traced. This identifier is a combination of the class/module/struct name, and the line/column of the file where the method definition starts. For example: `TestObject__my_method__11X3`
+* *method_counter*: This contains a monotonically increasing number which is a simple count of methods. Each method that is traced increments this counter by one. The count is an unsigned 128-bit integer.
+* *caller*: This will contain `self`, the object that the method is running in.
+
+```crystal
+trace("my_method", "my_callback")
+```
+
+```crystal
+trace("my_method", ->() {puts "Doing tracing stuff"})
+```
+
+```crystal
+trace("my_method", ->(method_name : String) {puts "Tracing #{method_name}"})
+```
 
 ## Development
 
