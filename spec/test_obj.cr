@@ -101,7 +101,7 @@ class TestObj
 
   def nothingburger(method, phase, identifier, counter, caller)
   end
-  
+
   trace(
     "c",
     ->() {@@log[{__trace_method_identifier__, __trace_method_call_counter__}] << Time.monotonic}

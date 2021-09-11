@@ -46,7 +46,7 @@ describe Tracer do
   it "logs a call to a class method declared on a module instead of a class" do
     TestModule.foo.should eq 7
 
-    ExternalTraceManager.log.select {|k, _| k[0] == "TestModule"}.size.should eq 1
+    ExternalTraceManager.log.count {|k, _| k[0] == "TestModule"}.should eq 1
   end
 
   it "works with an instance method in a struct" do
@@ -55,14 +55,14 @@ describe Tracer do
     obj.value.should eq "I am a test struct"
     obj.framed_value.should eq "|I am a test struct|"
 
-    ExternalTraceManager.log.select {|k, _| k[0] == "TestStruct"}.size.should eq 1
+    ExternalTraceManager.log.count {|k, _| k[0] == "TestStruct"}.should eq 1
   end
 
   it "works with a class method in a struct" do
     TestStruct.random.class.should eq TestStruct
     TestStruct.random.value.size.should eq 22
 
-    ExternalTraceManager.log.select {|k, _| k[0] == "TestStruct" && k[1] =~ /random__/}.size.should eq 2
+    ExternalTraceManager.log.count {|k, _| k[0] == "TestStruct" && k[1] =~ /random__/}.should eq 2
   end
 
   it "callbacks with no arguments work as expected" do

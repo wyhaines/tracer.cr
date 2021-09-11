@@ -32,7 +32,7 @@ macro add_method_hooks(method_name, method_body = "", block_def = nil)
               if found_the_receiver
                 constant_id = search_path.constants.find {|c| c.id == part}
                 puts "***** GOT #{constant_id} for #{part}" if flag? :DEBUG
-                unless constant_id
+                if !constant_id
                   found_the_receiver = false
                 else
                   search_path = search_path.constant(constant_id)
@@ -80,10 +80,10 @@ macro add_method_hooks(method_name, method_body = "", block_def = nil)
     # {{ receiver.id }}
     __trace_method_receiver__ = {{ trace_method_receiver }}
     __trace_method_call_counter__ = Tracer::METHOD_COUNTER[0]
-    Tracer::METHOD_COUNTER[0] = Tracer::METHOD_COUNTER[0] &+ 1  
+    Tracer::METHOD_COUNTER[0] = Tracer::METHOD_COUNTER[0] &+ 1
     __trace_method_name__ = {{ method_name }}
     __trace_method_identifier__ = {{ trace_method_identifier }}
-    
+
     {{ method_body.is_a?(StringLiteral) ? method_body.id : method_body.body.id.gsub(/previous_def\(\)/,"previous_def").id }}
   end
   {% end %}
@@ -139,4 +139,5 @@ macro trace(method_name, callback, block_def = nil)
     {{ block_def }}
   )
   {% debug  if flag? :DEBUG %}
+
 end
