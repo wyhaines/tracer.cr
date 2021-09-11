@@ -21,29 +21,23 @@ macro add_method_hooks(method_name, method_body = "", block_def = nil)
         search_paths = [@top_level]
         search_paths << @type.class unless receiver_name[0..1] == "::"
 
-        puts "***** SEARCH PATHS: #{search_paths}" if flag? :DEBUG
         search_paths.each do |search_path|
-          puts "***** SEARCHING #{search_path}" if flag? :DEBUG
           unless receiver
             found_the_receiver = true
             parts = receiver_name.split("::")
-            puts "***** ITERATING #{parts}" if flag? :DEBUG
             parts.each do |part|
               if found_the_receiver
                 constant_id = search_path.constants.find {|c| c.id == part}
-                puts "***** GOT #{constant_id} for #{part}" if flag? :DEBUG
                 if !constant_id
                   found_the_receiver = false
                 else
                   search_path = search_path.constant(constant_id)
                   found_the_receiver = false if search_path.nil?
-                  puts "***** SEARCH_PATH(#{found_the_receiver}) == #{search_path}" if flag? :DEBUG
                 end
               end
             end
 
             if found_the_receiver
-              puts "***** GOT RECEIVER #{search_path}" if flag? :DEBUG
               receiver = search_path.class
             end
           end
@@ -51,7 +45,6 @@ macro add_method_hooks(method_name, method_body = "", block_def = nil)
       end
     else
       receiver = @type
-      puts "***** RECEIVER DEFAULTING TO #{@type}" if flag? :DEBUG
     end
   %}
   {% methods = receiver ? receiver.methods.select {|m| m.name.id == method_name} : [] of Nil %}
@@ -135,6 +128,96 @@ macro trace(method_name, callback, block_def = nil)
         {{ callback.id }}({{ method_name }}, :after, __trace_method_identifier__, __trace_method_call_counter__, self)
       end
       {% end %}
+    },
+    {{ block_def }}
+  )
+  {% debug  if flag? :DEBUG %}
+
+end
+
+macro trace(method_name, block_def = nil, &callback)
+  add_method_hooks(
+    {{ method_name }},
+    ->() {
+      {%
+        pre_args = [] of Nil
+        post_args = [] of Nil
+        arg_types = [] of Nil
+
+        callback_arity = callback.args.size
+
+        if callback_arity > 0
+          pre_args << method_name.stringify
+          post_args << method_name.stringify
+          arg_types << "#{callback.args[0].id} : String"
+        end
+        if callback_arity > 1
+          pre_args << ":before".id
+          post_args << ":after".id
+          arg_types << "#{callback.args[1].id} : Symbol"
+        end
+        if callback_arity > 2
+          pre_args << "__trace_method_identifier__".id
+          post_args << "__trace_method_identifier__".id
+          arg_types << "#{callback.args[2].id} : String"
+        end
+        if callback_arity > 3
+          pre_args << "__trace_method_call_counter__".id
+          post_args << "__trace_method_call_counter__".id
+          arg_types << "#{callback.args[3].id} : UInt128"
+        end
+        if callback_arity > 4
+          if method_name.includes?(".")
+            receiver_name, method_name = method_name.split(".")
+      
+            if receiver_name == "self"
+              receiver = @type.class
+            else
+              receiver = nil
+              search_paths = [@top_level]
+              search_paths << @type.class unless receiver_name[0..1] == "::"
+      
+              search_paths.each do |search_path|
+                unless receiver
+                  found_the_receiver = true
+                  parts = receiver_name.split("::")
+                  parts.each do |part|
+                    if found_the_receiver
+                      constant_id = search_path.constants.find {|c| c.id == part}
+                      if !constant_id
+                        found_the_receiver = false
+                      else
+                        search_path = search_path.constant(constant_id)
+                        found_the_receiver = false if search_path.nil?
+                      end
+                    end
+                  end
+      
+                  if found_the_receiver
+                    receiver = search_path.class
+                  end
+                end
+              end
+            end
+          else
+            receiver = @type
+          end
+        
+          pre_args << "self".id
+          post_args << "self".id
+          arg_types << "#{callback.args[4].id} : #{receiver.id}".id   
+        end
+      %}
+      begin
+        ->({{ arg_types.join(", ").id }}) do
+          {{ callback.body.id }}
+        end.call({{ pre_args.join(", ").id }})
+        previous_def
+      ensure
+        ->({{ arg_types.join(", ").id }}) do
+          {{ callback.body.id }}
+        end.call({{ post_args.join(", ").id }})
+      end
     },
     {{ block_def }}
   )

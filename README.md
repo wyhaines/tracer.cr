@@ -56,10 +56,15 @@ def callback(caller, method_name, phase, method_identifier, method_counter)
 * *method_counter*: This contains a monotonically increasing number which is a simple count of methods. Each method that is traced increments this counter by one. The count is an unsigned 128-bit integer.
 * *caller*: This will contain `self`, the object that the method is running in.
 
+A simple example of setting up tracing on a method is:
+
 ```crystal
 trace("my_method", "my_callback")
 ```
 
+This example will trace the method `my_method` and invoke the callback `my_callback` both before and after the method is called.
+
+Callbacks can also be specified with blocks or Proc 
 ```crystal
 trace("my_method", ->() {puts "Doing tracing stuff"})
 ```

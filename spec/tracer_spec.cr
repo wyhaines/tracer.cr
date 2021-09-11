@@ -65,14 +65,21 @@ describe Tracer do
     ExternalTraceManager.log.count {|k, _| k[0] == "TestStruct" && k[1] =~ /random__/}.should eq 2
   end
 
-  it "callbacks with no arguments work as expected" do
+  it "proc style callbacks with no arguments work as expected" do
     obj = TestObj.new
 
     obj.none.should be_nil
     TestObj.trace_tracker.keys.includes?("none").should be_true
   end
 
-  it "callbacks with one argument work as expected" do
+  it "block style callbacks with no arguments work as expected" do
+    obj = TestObj.new
+
+    obj.also_none.should be_nil
+    TestObj.trace_tracker.keys.includes?("also_none").should be_true
+  end
+
+  it "proc style callbacks with one argument work as expected" do
     obj = TestObj.new
 
     obj.one.should eq 1
@@ -80,7 +87,15 @@ describe Tracer do
     TestObj.trace_tracker["one"].should eq "one"
   end
 
-  it "callbacks with two arguments work as expected" do
+  it "block style callbacks with one argument work as expected" do
+    obj = TestObj.new
+
+    obj.also_one.should eq 1
+    TestObj.trace_tracker.keys.includes?("also_one").should be_true
+    TestObj.trace_tracker["also_one"].should eq "also_one"
+  end
+
+  it "proc style callbacks with two arguments work as expected" do
     obj = TestObj.new
 
     obj.two.should eq 2
@@ -88,15 +103,31 @@ describe Tracer do
     TestObj.trace_tracker["two"].should eq "two|after"
   end
 
-  it "callbacks with three arguments work as expected" do
+  it "block style callbacks with two arguments work as expected" do
+    obj = TestObj.new
+
+    obj.also_two.should eq 2
+    TestObj.trace_tracker.keys.includes?("also_two").should be_true
+    TestObj.trace_tracker["also_two"].should eq "also_two|after"
+  end
+
+  it "proc style callbacks with three arguments work as expected" do
     obj = TestObj.new
 
     obj.three.should eq 3
     TestObj.trace_tracker.keys.includes?("three").should be_true
     TestObj.trace_tracker["three"].should start_with("three|after|TestObj__three")
   end
+  
+  it "block style callbacks with three arguments work as expected" do
+    obj = TestObj.new
 
-  it "callbacks with four arguments work as expected" do
+    obj.also_three.should eq 3
+    TestObj.trace_tracker.keys.includes?("also_three").should be_true
+    TestObj.trace_tracker["also_three"].should start_with("also_three|after|TestObj__also_three")
+  end
+
+  it "proc style callbacks with four arguments work as expected" do
     obj = TestObj.new
 
     obj.four.should eq 4
@@ -105,13 +136,31 @@ describe Tracer do
     TestObj.trace_tracker["four"].should match(/four\|after\|TestObj__four__\d+X\d+\|\d+/)
   end
 
-  it "callbacks with five arguments work as expected" do
+  it "block style callbacks with four arguments work as expected" do
+    obj = TestObj.new
+
+    obj.also_four.should eq 4
+    TestObj.trace_tracker.keys.includes?("also_four").should be_true
+    TestObj.trace_tracker["also_four"].should start_with("also_four|after|TestObj__also_four")
+    TestObj.trace_tracker["also_four"].should match(/also_four\|after\|TestObj__also_four__\d+X\d+\|\d+/)
+  end
+
+  it "proc style callbacks with five arguments work as expected" do
     obj = TestObj.new
 
     obj.five.should eq 5
     TestObj.trace_tracker.keys.includes?("five").should be_true
     TestObj.trace_tracker["five"].should start_with("five|after|TestObj__five")
     TestObj.trace_tracker["five"].should match(/five\|after\|TestObj__five__\d+X\d+\|\d+\|#<TestObj/)
+  end
+
+  it "block style callbacks with five arguments work as expected" do
+    obj = TestObj.new
+
+    obj.also_five.should eq 5
+    TestObj.trace_tracker.keys.includes?("also_five").should be_true
+    TestObj.trace_tracker["also_five"].should start_with("also_five|after|TestObj__also_five")
+    TestObj.trace_tracker["also_five"].should match(/also_five\|after\|TestObj__also_five__\d+X\d+\|\d+\|#<TestObj/)
   end
 
   # The benchmark only runs when compiled in release mode.
