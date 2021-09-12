@@ -83,13 +83,13 @@
   </svg>
 </a>Tracer.cr</h1>
 
-<p><em>WARNING: This code is alpha. Details about its interface are likely to change.</em></p>
+<p><em>WARNING: This code is alpha. Details about its interface may change.</em></p>
 
 <p>Tracer.cr provides a facility for attaching tracing code to methods in Crystal code.</p>
 
-<p>This library is pretty low-level. It provides a simple interface to use to attach functionality to existing code, but doesn't provide any higher level functionality around that. It is intended to be a building block for constructing that higher level functionality - debugging, performance monitoring, or execution auditing, for example.</p>
+<p>This library is a low level tracing interface. It provides a simple api to use to attach functionality to existing code. It is intended to be a building block for constructing higher level functionality - debugging, performance monitoring, or execution auditing, for example.</p>
 
-<p>It works through a combination of macros, and leveraging the <code>previous_def</code> capability to invoke the previously defined version of a library.</p>
+<p>It works through a combination of macros, and leveraging the <code>previous_def</code> capability to invoke the previously defined version of a method.</p>
 
 <p>The current version nominally works, but it is missing some key features that are on the short term roadmap:</p>
 
@@ -135,7 +135,13 @@
 
 <ul><li><em>method_name</em>: This will contain the name of the method that is being traced.</li><li><em>phase</em>: This will contain the phase of the tracing. This will be one of <code>:before</code> or <code>:after</code>, depending on whether the callback is being invoked before the method being traced, or after it.</li><li><em>method_identifier</em>: This will contain the identifier of the method being traced. This identifier is a combination of the class/module/struct name, and the line/column of the file where the method definition starts. For example: <code>TestObject__my_method__11X3</code></li><li><em>method_counter</em>: This contains a monotonically increasing number which is a simple count of methods. Each method that is traced increments this counter by one. The count is an unsigned 128-bit integer.</li><li><em>caller</em>: This will contain <code>self</code>, the object that the method is running in.</li></ul>
 
+<p>A simple example of setting up tracing on a method is:</p>
+
 <pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, <span class="s">&quot;my_callback&quot;</span>)</code></pre>
+
+<p>This example will trace the method <code>my_method</code> and invoke the callback <code>my_callback</code> both before and after the method is called.</p>
+
+<p>Callbacks can also be specified with blocks or Proc </p>
 
 <pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->() {puts <span class="s">&quot;Doing tracing stuff&quot;</span>})</code></pre>
 
@@ -166,6 +172,14 @@
   method_counter : <span class="t">U128</span>,
   caller : <span class="t">Object</span>
 ) {puts <span class="s">&quot;Tracing </span><span class="i">#{</span>method_name<span class="i">}</span><span class="s"> on </span><span class="i">#{</span>caller<span class="i">}</span><span class="s"> in phase </span><span class="i">#{</span>phase<span class="i">}</span><span class="s">; unique method identifier is </span><span class="i">#{</span>method_identifier<span class="i">}</span><span class="s">; method counter is </span><span class="i">#{</span>method_counter<span class="i">}</span><span class="s">&quot;</span>}</code></pre>
+
+<p>Tracing also accepts a block syntax:</p>
+
+<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>) <span class="k">do</span> <span class="o">|</span>method_name, phase, method_identifier<span class="o">|</span>
+  <span class="t">EventLogger</span>.log(method_name, phase, method_identifier)
+<span class="k">end</span></code></pre>
+
+<p>Like the Proc support, the block support works with any number of arguments from zero to five.</p>
 
 <h2><a id="development" class="anchor" href="#development">
   <svg class="octicon-link" aria-hidden="true">
