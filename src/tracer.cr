@@ -169,14 +169,14 @@ macro trace(method_name, block_def = nil, &callback)
         if callback_arity > 4
           if method_name.includes?(".")
             receiver_name, method_name = method_name.split(".")
-      
+
             if receiver_name == "self"
               receiver = @type.class
             else
               receiver = nil
               search_paths = [@top_level]
               search_paths << @type.class unless receiver_name[0..1] == "::"
-      
+
               search_paths.each do |search_path|
                 unless receiver
                   found_the_receiver = true
@@ -192,7 +192,7 @@ macro trace(method_name, block_def = nil, &callback)
                       end
                     end
                   end
-      
+
                   if found_the_receiver
                     receiver = search_path.class
                   end
@@ -202,10 +202,10 @@ macro trace(method_name, block_def = nil, &callback)
           else
             receiver = @type
           end
-        
+
           pre_args << "self".id
           post_args << "self".id
-          arg_types << "#{callback.args[4].id} : #{receiver.id}".id   
+          arg_types << "#{callback.args[4].id} : #{receiver.id}".id
         end
       %}
       begin

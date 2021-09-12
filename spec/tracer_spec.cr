@@ -118,7 +118,7 @@ describe Tracer do
     TestObj.trace_tracker.keys.includes?("three").should be_true
     TestObj.trace_tracker["three"].should start_with("three|after|TestObj__three")
   end
-  
+
   it "block style callbacks with three arguments work as expected" do
     obj = TestObj.new
 
