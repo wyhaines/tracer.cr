@@ -24,7 +24,7 @@ The current version nominally works, but it is missing some key features that ar
 
    ```yaml
    dependencies:
-     call_trace:
+     tracer:
        github: wyhaines/tracer.cr
    ```
 
