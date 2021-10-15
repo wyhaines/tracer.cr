@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.0.0">
+<meta name="generator" content="Crystal Docs 1.1.1">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="tracer">
 
@@ -73,98 +73,79 @@
 
 
 <div class="main-content">
-<p><img src="https://img.shields.io/github/workflow/status/wyhaines/tracer.cr/Tracer.cr%20CI?style=for-the-badge&logo=GitHub" alt="Tracer.cr CI"/>
-<a href="https://github.com/wyhaines/tracer.cr/releases"><img src="https://img.shields.io/github/release/wyhaines/tracer.cr.svg?style=for-the-badge" alt="GitHub release"/></a>
-<img src="https://img.shields.io/github/commits-since/wyhaines/tracer.cr/latest?style=for-the-badge" alt="GitHub commits since latest release (by SemVer)"/></p>
-
+<p><img src="https://img.shields.io/github/workflow/status/wyhaines/tracer.cr/Tracer.cr%20CI?style=for-the-badge&amp;logo=GitHub" alt="Tracer.cr CI" />
+<a href="https://github.com/wyhaines/tracer.cr/releases"><img src="https://img.shields.io/github/release/wyhaines/tracer.cr.svg?style=for-the-badge" alt="GitHub release" /></a>
+<img src="https://img.shields.io/github/commits-since/wyhaines/tracer.cr/latest?style=for-the-badge" alt="GitHub commits since latest release (by SemVer)" /></p>
 <h1><a id="tracer.cr" class="anchor" href="#tracer.cr">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Tracer.cr</h1>
-
 <p><em>WARNING: This code is alpha. Details about its interface may change.</em></p>
-
 <p>Tracer.cr provides a facility for attaching tracing code to methods in Crystal code.</p>
-
 <p>This library is a low level tracing interface. It provides a simple api to use to attach functionality to existing code. It is intended to be a building block for constructing higher level functionality - debugging, performance monitoring, or execution auditing, for example.</p>
-
 <p>It works through a combination of macros, and leveraging the <code>previous_def</code> capability to invoke the previously defined version of a method.</p>
-
 <p>The current version nominally works, but it is missing some key features that are on the short term roadmap:</p>
-
-<ol><li>Add support for the <code><a href="Trace.html">Trace</a></code> annotation so that tracing can be managed via annotations.</li><li>Add support for dynamically disabling trace code. It would be really nifty if we could do object inheritance chain manipulation in Crystal like one can in Ruby, when leveraging <code>prepend</code> for this sort of stuff, but Crystal's compiled nature doesn't make it dynamic in that way, so the plan is to enable dynamic disabling of trace code through a lookup table and simple <code>if</code> statements. It will have some impact on performance, even when the trace code is disabled, but the impact should be extremely small.</li></ol>
-
+<ol>
+<li>Add support for the <code><a href="Trace.html">Trace</a></code> annotation so that tracing can be managed via annotations.</li>
+<li>Add support for dynamically disabling trace code. It would be really nifty if we could do object inheritance chain manipulation in Crystal like one can in Ruby, when leveraging <code>prepend</code> for this sort of stuff, but Crystal's compiled nature doesn't make it dynamic in that way, so the plan is to enable dynamic disabling of trace code through a lookup table and simple <code>if</code> statements. It will have some impact on performance, even when the trace code is disabled, but the impact should be extremely small.</li>
+</ol>
 <h2><a id="installation" class="anchor" href="#installation">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Installation</h2>
-
-<ol><li>Add the dependency to your <code>shard.yml</code>:</li></ol>
-
-<p><code></code>`yaml
-   dependencies:</p>
-
-<pre><code class="language-crystal"> tracer:
-   github: wyhaines/tracer.cr</code></pre>
-
-<p><code></code>`</p>
-
-<ol><li>Run <code>shards install</code></li></ol>
-
+<ol>
+<li>
+<p>Add the dependency to your <code>shard.yml</code>:</p>
+<pre><code class="language-yaml">dependencies:
+  tracer:
+    github: wyhaines/tracer.cr</code></pre>
+</li>
+<li>
+<p>Run <code>shards install</code></p>
+</li>
+</ol>
 <h2><a id="usage" class="anchor" href="#usage">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Usage</h2>
-
 <pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;tracer&quot;</span></code></pre>
-
 <p>To use the tracer, require the shard. This will define macros to support all other tracing tasks.</p>
-
-<p>The main macro that is used to establish tracing functions is <code><a href="toplevel.html#trace(method_name,callback,block_def=nil)-macro">trace</a></code>. It takes two required arguments, and one optional argument.</p>
-
-<p><code><a href="toplevel.html#trace(method_name,callback,block_def=nil)-macro">trace(METHOD_NAME, CALLBACK, BLOCK_DEFINITION)</a></code></p>
-
+<p>The main macro that is used to establish tracing functions is <code><a href="toplevel.html#trace%28method_name%2Ccallback%2Cblock_def%3Dnil%29-macro">trace</a></code>. It takes two required arguments, and one optional argument.</p>
+<p><code><a href="toplevel.html#trace%28method_name%2Ccallback%2Cblock_def%3Dnil%29-macro">trace(METHOD_NAME, CALLBACK, BLOCK_DEFINITION)</a></code></p>
 <p>The <code>METHOD_NAME</code> should be a <code>String</code> that is the name of the method that is being traced. The <code>CALLBACK</code> can be either a string specifying a method to call both before and after <code>METHOD_NAME</code> is called, or a <code>Proc</code> that will be invoked both before and after <code>METHOD_NAME</code> is called.</p>
-
 <p>A callback method is expected to take five arguments:</p>
-
 <pre><code class="language-crystal"><span class="k">def</span> <span class="m">callback</span>(caller, method_name, phase, method_identifier, method_counter)</code></pre>
-
-<ul><li><em>method_name</em>: This will contain the name of the method that is being traced.</li><li><em>phase</em>: This will contain the phase of the tracing. This will be one of <code>:before</code> or <code>:after</code>, depending on whether the callback is being invoked before the method being traced, or after it.</li><li><em>method_identifier</em>: This will contain the identifier of the method being traced. This identifier is a combination of the class/module/struct name, and the line/column of the file where the method definition starts. For example: <code>TestObject__my_method__11X3</code></li><li><em>method_counter</em>: This contains a monotonically increasing number which is a simple count of methods. Each method that is traced increments this counter by one. The count is an unsigned 128-bit integer.</li><li><em>caller</em>: This will contain <code>self</code>, the object that the method is running in.</li></ul>
-
+<ul>
+<li><em>method_name</em>: This will contain the name of the method that is being traced.</li>
+<li><em>phase</em>: This will contain the phase of the tracing. This will be one of <code>:before</code> or <code>:after</code>, depending on whether the callback is being invoked before the method being traced, or after it.</li>
+<li><em>method_identifier</em>: This will contain the identifier of the method being traced. This identifier is a combination of the class/module/struct name, and the line/column of the file where the method definition starts. For example: <code>TestObject__my_method__11X3</code></li>
+<li><em>method_counter</em>: This contains a monotonically increasing number which is a simple count of methods. Each method that is traced increments this counter by one. The count is an unsigned 128-bit integer.</li>
+<li><em>caller</em>: This will contain <code>self</code>, the object that the method is running in.</li>
+</ul>
 <p>A simple example of setting up tracing on a method is:</p>
-
 <pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, <span class="s">&quot;my_callback&quot;</span>)</code></pre>
-
 <p>This example will trace the method <code>my_method</code> and invoke the callback <code>my_callback</code> both before and after the method is called.</p>
-
-<p>Callbacks can also be specified with blocks or Proc </p>
-
+<p>Callbacks can also be specified with blocks or Proc</p>
 <pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->() {puts <span class="s">&quot;Doing tracing stuff&quot;</span>})</code></pre>
-
 <pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->(method_name : <span class="t">String</span>) {puts <span class="s">&quot;Tracing </span><span class="i">#{</span>method_name<span class="i">}</span><span class="s">&quot;</span>})</code></pre>
-
 <pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->(
   method_name : <span class="t">String</span>,
   phase : <span class="t">Symbol</span>
 ) {puts <span class="s">&quot;Tracing </span><span class="i">#{</span>method_name<span class="i">}</span><span class="s"> in phase </span><span class="i">#{</span>phase<span class="i">}</span><span class="s">&quot;</span>})</code></pre>
-
 <pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->(
   method_name : <span class="t">String</span>,
   phase : <span class="t">Symbol</span>,
   method_identifier : <span class="t">String</span>
 ) {puts <span class="s">&quot;Tracing </span><span class="i">#{</span>method_name<span class="i">}</span><span class="s"> in phase </span><span class="i">#{</span>phase<span class="i">}</span><span class="s">; unique method identifier is </span><span class="i">#{</span>method_identifier<span class="i">}</span><span class="s">&quot;</span>})</code></pre>
-
 <pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->(
   method_name : <span class="t">String</span>,
   phase : <span class="t">Symbol</span>,
   method_identifier : <span class="t">String</span>,
   method_counter : <span class="t">U128</span>
 ) {puts <span class="s">&quot;Tracing </span><span class="i">#{</span>method_name<span class="i">}</span><span class="s"> in phase </span><span class="i">#{</span>phase<span class="i">}</span><span class="s">; unique method identifier is </span><span class="i">#{</span>method_identifier<span class="i">}</span><span class="s">; method counter is </span><span class="i">#{</span>method_counter<span class="i">}</span><span class="s">&quot;</span>})</code></pre>
-
 <pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->(
   method_name : <span class="t">String</span>,
   phase : <span class="t">Symbol</span>,
@@ -172,41 +153,39 @@
   method_counter : <span class="t">U128</span>,
   caller : <span class="t">Object</span>
 ) {puts <span class="s">&quot;Tracing </span><span class="i">#{</span>method_name<span class="i">}</span><span class="s"> on </span><span class="i">#{</span>caller<span class="i">}</span><span class="s"> in phase </span><span class="i">#{</span>phase<span class="i">}</span><span class="s">; unique method identifier is </span><span class="i">#{</span>method_identifier<span class="i">}</span><span class="s">; method counter is </span><span class="i">#{</span>method_counter<span class="i">}</span><span class="s">&quot;</span>}</code></pre>
-
 <p>Tracing also accepts a block syntax:</p>
-
 <pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>) <span class="k">do</span> <span class="o">|</span>method_name, phase, method_identifier<span class="o">|</span>
   <span class="t">EventLogger</span>.log(method_name, phase, method_identifier)
 <span class="k">end</span></code></pre>
-
 <p>Like the Proc support, the block support works with any number of arguments from zero to five.</p>
-
 <h2><a id="development" class="anchor" href="#development">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Development</h2>
-
 <p>If you want to help with the development, email me, and fork the repo. Work on your changes in a branch out of your own repo, and when it is ready (with documentation and specs), send me a pull request telling me what you have done, why you have done it, and what you have done to make sure that it works as expected.</p>
-
 <h2><a id="contributing" class="anchor" href="#contributing">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Contributing</h2>
-
-<ol><li>Fork it (&lt;https://github.com/wyhaines/tracer.cr/fork>)</li><li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li><li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li><li>Push to the branch (<code>git push origin my-new-feature</code>)</li><li>Create a new Pull Request</li></ol>
-
+<ol>
+<li>Fork it (<a href="https://github.com/wyhaines/tracer.cr/fork">https://github.com/wyhaines/tracer.cr/fork</a>)</li>
+<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
+<li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
+<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
+<li>Create a new Pull Request</li>
+</ol>
 <h2><a id="contributors" class="anchor" href="#contributors">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Contributors</h2>
-
-<ul><li><a href="https://github.com/wyhaines">Kirk Haines</a> - creator and maintainer</li></ul>
-
-<p><img src="https://img.shields.io/github/languages/code-size/wyhaines/tracer.cr?style=for-the-badge" alt="GitHub code size in bytes"/>
-<img src="https://img.shields.io/github/issues/wyhaines/tracer.cr?style=for-the-badge" alt="GitHub issues"/></p>
+<ul>
+<li><a href="https://github.com/wyhaines">Kirk Haines</a> - creator and maintainer</li>
+</ul>
+<p><img src="https://img.shields.io/github/languages/code-size/wyhaines/tracer.cr?style=for-the-badge" alt="GitHub code size in bytes" />
+<img src="https://img.shields.io/github/issues/wyhaines/tracer.cr?style=for-the-badge" alt="GitHub issues" /></p>
 </div>
 </body>
 </html>
