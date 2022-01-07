@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.1.1">
+<meta name="generator" content="Crystal Docs 1.2.2">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="tracer">
 
@@ -129,24 +129,24 @@
 <pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, <span class="s">&quot;my_callback&quot;</span>)</code></pre>
 <p>This example will trace the method <code>my_method</code> and invoke the callback <code>my_callback</code> both before and after the method is called.</p>
 <p>Callbacks can also be specified with blocks or Proc</p>
-<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->() {puts <span class="s">&quot;Doing tracing stuff&quot;</span>})</code></pre>
-<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->(method_name : <span class="t">String</span>) {puts <span class="s">&quot;Tracing </span><span class="i">#{</span>method_name<span class="i">}</span><span class="s">&quot;</span>})</code></pre>
-<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->(
+<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, -&gt;() {puts <span class="s">&quot;Doing tracing stuff&quot;</span>})</code></pre>
+<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, -&gt;(method_name : <span class="t">String</span>) {puts <span class="s">&quot;Tracing </span><span class="i">#{</span>method_name<span class="i">}</span><span class="s">&quot;</span>})</code></pre>
+<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, -&gt;(
   method_name : <span class="t">String</span>,
   phase : <span class="t">Symbol</span>
 ) {puts <span class="s">&quot;Tracing </span><span class="i">#{</span>method_name<span class="i">}</span><span class="s"> in phase </span><span class="i">#{</span>phase<span class="i">}</span><span class="s">&quot;</span>})</code></pre>
-<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->(
+<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, -&gt;(
   method_name : <span class="t">String</span>,
   phase : <span class="t">Symbol</span>,
   method_identifier : <span class="t">String</span>
 ) {puts <span class="s">&quot;Tracing </span><span class="i">#{</span>method_name<span class="i">}</span><span class="s"> in phase </span><span class="i">#{</span>phase<span class="i">}</span><span class="s">; unique method identifier is </span><span class="i">#{</span>method_identifier<span class="i">}</span><span class="s">&quot;</span>})</code></pre>
-<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->(
+<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, -&gt;(
   method_name : <span class="t">String</span>,
   phase : <span class="t">Symbol</span>,
   method_identifier : <span class="t">String</span>,
   method_counter : <span class="t">U128</span>
 ) {puts <span class="s">&quot;Tracing </span><span class="i">#{</span>method_name<span class="i">}</span><span class="s"> in phase </span><span class="i">#{</span>phase<span class="i">}</span><span class="s">; unique method identifier is </span><span class="i">#{</span>method_identifier<span class="i">}</span><span class="s">; method counter is </span><span class="i">#{</span>method_counter<span class="i">}</span><span class="s">&quot;</span>})</code></pre>
-<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, ->(
+<pre><code class="language-crystal">trace(<span class="s">&quot;my_method&quot;</span>, -&gt;(
   method_name : <span class="t">String</span>,
   phase : <span class="t">Symbol</span>,
   method_identifier : <span class="t">String</span>,
