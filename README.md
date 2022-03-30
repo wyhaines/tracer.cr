@@ -4,13 +4,13 @@
 
 # Tracer.cr
 
-*WARNING: This code is alpha. Details about its interface are likely to change.*
+*WARNING: This code is alpha. Details about its interface may change.*
   
 Tracer.cr provides a facility for attaching tracing code to methods in Crystal code.
 
-This library is pretty low-level. It provides a simple interface to use to attach functionality to existing code, but doesn't provide any higher level functionality around that. It is intended to be a building block for constructing that higher level functionality - debugging, performance monitoring, or execution auditing, for example.
+This library is a low level tracing interface. It provides a simple api to use to attach functionality to existing code. It is intended to be a building block for constructing higher level functionality - debugging, performance monitoring, or execution auditing, for example.
 
-It works through a combination of macros, and leveraging the `previous_def` capability to invoke the previously defined version of a library.
+It works through a combination of macros, and leveraging the `previous_def` capability to invoke the previously defined version of a method.
 
 The current version nominally works, but it is missing some key features that are on the short term roadmap:
 
@@ -23,7 +23,7 @@ The current version nominally works, but it is missing some key features that ar
 
    ```yaml
    dependencies:
-     call_trace:
+     tracer:
        github: wyhaines/tracer.cr
    ```
 
@@ -105,6 +105,16 @@ trace("my_method", ->(
   caller : Object
 ) {puts "Tracing #{method_name} on #{caller} in phase #{phase}; unique method identifier is #{method_identifier}; method counter is #{method_counter}"}
 ```
+
+Tracing also accepts a block syntax:
+
+```crystal
+trace("my_method") do |method_name, phase, method_identifier|
+  EventLogger.log(method_name, phase, method_identifier)
+end
+```
+
+Like the Proc support, the block support works with any number of arguments from zero to five.
 
 ## Development
 
