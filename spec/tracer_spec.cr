@@ -168,12 +168,14 @@ describe Tracer do
     Tracer::TRACED_METHODS.includes?({"a", TestObj}).should be_true
     Tracer::TRACED_METHODS.includes?({"b", TestObj}).should be_true
     Tracer::TRACED_METHODS.includes?({"random", TestStruct}).should be_true
-    pp Tracer::TRACED_METHODS
   end
 
   it "has access to a NamedTuple of Receivers and the methods that have had tracers applied" do
     Tracer::TRACED_METHODS_BY_RECEIVER.size.should eq 3
-    pp Tracer::TRACED_METHODS_BY_RECEIVER
+    Tracer::TRACED_METHODS_BY_RECEIVER[TestStruct].includes?("random").should be_true
+    Tracer::TRACED_METHODS_BY_RECEIVER[TestObj].includes?("a").should be_true
+    Tracer::TRACED_METHODS_BY_RECEIVER[TestObj].includes?("b").should be_true
+    Tracer::TRACED_METHODS_BY_RECEIVER[TestStruct].includes?("framed_value").should be_true
   end
 
   # The benchmark only runs when compiled in release mode.

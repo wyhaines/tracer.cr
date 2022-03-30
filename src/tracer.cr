@@ -58,7 +58,7 @@ module Tracer
 
     TRACED_METHODS_BY_RECEIVER = {
       {% for receiver, methods in traced_methods_by_receiver %}
-      {{ receiver.id }}: {
+      {{ receiver.id }} => {
         {% for method in methods %}
         {{ method }},
         {% end %}
