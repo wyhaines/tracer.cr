@@ -2,7 +2,6 @@
 [![GitHub release](https://img.shields.io/github/release/wyhaines/tracer.cr.svg?style=for-the-badge)](https://github.com/wyhaines/tracer.cr/releases)
 ![GitHub commits since latest release (by SemVer)](https://img.shields.io/github/commits-since/wyhaines/tracer.cr/latest?style=for-the-badge)
 
-
 # Tracer.cr
 
 *WARNING: This code is alpha. Details about its interface are likely to change.*

@@ -2,6 +2,71 @@ module Tracer
   VERSION = "0.1.0"
 
   METHOD_COUNTER = [0_u128]
+
+  TRACED_METHOD_NAMES = {} of Tuple(String, String) => Bool
+
+  macro finished
+    {%
+      traced_methods = [] of Nil
+      traced_methods_by_receiver = {} of Nil => Array(String)
+    %}
+    {% for name_pair in TRACED_METHOD_NAMES.keys %}
+    {%
+      method_name, receiver_name = name_pair
+      if receiver_name == "self"
+        receiver = @type.class
+      else
+        receiver = nil
+        search_paths = [@top_level]
+        search_paths << @type.class unless receiver_name[0..1] == "::"
+
+        search_paths.each do |search_path|
+          unless receiver
+            found_the_receiver = true
+            parts = receiver_name.split("::")
+            parts.each do |part|
+              if found_the_receiver
+                constant_id = search_path.constants.find { |c| c.id == part }
+                if !constant_id
+                  found_the_receiver = false
+                else
+                  search_path = search_path.constant(constant_id)
+                  found_the_receiver = false if search_path.nil?
+                end
+              end
+            end
+
+            if found_the_receiver
+              receiver = search_path
+            end
+          end
+        end
+
+        traced_methods << [method_name, receiver]
+        if !traced_methods_by_receiver[receiver]
+          traced_methods_by_receiver[receiver] = [] of String
+        end
+        traced_methods_by_receiver[receiver] << method_name
+      end
+    %}
+    {% end %}
+    TRACED_METHODS = {
+      {% for pair in traced_methods %}
+      { {{ pair[0] }}, {{ pair[1].id }} },
+      {% end %}
+    }
+
+    TRACED_METHODS_BY_RECEIVER = {
+      {% for receiver, methods in traced_methods_by_receiver %}
+      {{ receiver.id }}: {
+        {% for method in methods %}
+        {{ method }},
+        {% end %}
+      },
+      {% end %}
+    }
+    {% debug if flag? :DEBUG %}
+  end
 end
 
 # This annotation will be used to support annotation based trace management.
@@ -27,7 +92,7 @@ macro add_method_hooks(method_name, method_body = "", block_def = nil)
             parts = receiver_name.split("::")
             parts.each do |part|
               if found_the_receiver
-                constant_id = search_path.constants.find {|c| c.id == part}
+                constant_id = search_path.constants.find { |c| c.id == part }
                 if !constant_id
                   found_the_receiver = false
                 else
@@ -47,7 +112,7 @@ macro add_method_hooks(method_name, method_body = "", block_def = nil)
       receiver = @type
     end
   %}
-  {% methods = receiver ? receiver.methods.select {|m| m.name.id == method_name} : [] of Nil %}
+  {% methods = receiver ? receiver.methods.select { |m| m.name.id == method_name } : [] of Nil %}
   {% for method in methods %}
   {%
     method_args = method.args
@@ -66,21 +131,23 @@ macro add_method_hooks(method_name, method_body = "", block_def = nil)
     end
 
     trace_enabled = true # TODO: Implement a dynamic method to enable or disable tracing.
-    trace_method_receiver = "#{receiver.id.gsub(/\.class/,"").gsub(/:Module/,"")}".id
+    trace_method_receiver = "#{receiver.id.gsub(/\.class/, "").gsub(/:Module/, "")}".id
     trace_method_identifier = "#{trace_method_receiver}__#{method_name.id}__#{method.line_number.id}X#{method.column_number.id}"
   %}
-  {{ method.visibility.id == "public" ? "".id : method.visibility.id }} def {{ receiver == @type ? "".id : "#{receiver.id.gsub(/\.class/,"").gsub(/:Module/,"")}.".id }}{{ method.name.id }}{{ !method_args.empty? ? "(".id : "".id }}{{ method_args.join(", ").id }}{{ !method_args.empty? ? ")".id : "".id }}{{ method.return_type.id != "" ? " : #{method.return_type.id}".id : "".id }}
+  {{ method.visibility.id == "public" ? "".id : method.visibility.id }} def {{ receiver == @type ? "".id : "#{receiver.id.gsub(/\.class/, "").gsub(/:Module/, "")}.".id }}{{ method.name.id }}{{ !method_args.empty? ? "(".id : "".id }}{{ method_args.join(", ").id }}{{ !method_args.empty? ? ")".id : "".id }}{{ method.return_type.id != "" ? " : #{method.return_type.id}".id : "".id }}
     # {{ receiver.id }}
     __trace_method_receiver__ = {{ trace_method_receiver }}
     __trace_method_call_counter__ = Tracer::METHOD_COUNTER[0]
     Tracer::METHOD_COUNTER[0] = Tracer::METHOD_COUNTER[0] &+ 1
+    {% Tracer::TRACED_METHOD_NAMES[{method_name, trace_method_receiver.id.stringify}] = true %}
+    #Tracer::TRACED_METHODS << { {{ method_name }}, {{ trace_method_receiver.id.stringify }} }
     __trace_method_name__ = {{ method_name }}
     __trace_method_identifier__ = {{ trace_method_identifier }}
 
-    {{ method_body.is_a?(StringLiteral) ? method_body.id : method_body.body.id.gsub(/previous_def\(\)/,"previous_def").id }}
+    {{ method_body.is_a?(StringLiteral) ? method_body.id : method_body.body.id.gsub(/previous_def\(\)/, "previous_def").id }}
   end
   {% end %}
-  {% debug  if flag? :DEBUG %}
+  {% debug if flag? :DEBUG %}
 end
 
 macro trace(method_name, callback, block_def = nil)
@@ -131,7 +198,7 @@ macro trace(method_name, callback, block_def = nil)
     },
     {{ block_def }}
   )
-  {% debug  if flag? :DEBUG %}
+  {% debug if flag? :DEBUG %}
 
 end
 
@@ -169,21 +236,21 @@ macro trace(method_name, block_def = nil, &callback)
         if callback_arity > 4
           if method_name.includes?(".")
             receiver_name, method_name = method_name.split(".")
-      
+
             if receiver_name == "self"
               receiver = @type.class
             else
               receiver = nil
               search_paths = [@top_level]
               search_paths << @type.class unless receiver_name[0..1] == "::"
-      
+
               search_paths.each do |search_path|
                 unless receiver
                   found_the_receiver = true
                   parts = receiver_name.split("::")
                   parts.each do |part|
                     if found_the_receiver
-                      constant_id = search_path.constants.find {|c| c.id == part}
+                      constant_id = search_path.constants.find { |c| c.id == part }
                       if !constant_id
                         found_the_receiver = false
                       else
@@ -192,7 +259,7 @@ macro trace(method_name, block_def = nil, &callback)
                       end
                     end
                   end
-      
+
                   if found_the_receiver
                     receiver = search_path.class
                   end
@@ -202,10 +269,10 @@ macro trace(method_name, block_def = nil, &callback)
           else
             receiver = @type
           end
-        
+
           pre_args << "self".id
           post_args << "self".id
-          arg_types << "#{callback.args[4].id} : #{receiver.id}".id   
+          arg_types << "#{callback.args[4].id} : #{receiver.id}".id
         end
       %}
       begin
@@ -221,6 +288,6 @@ macro trace(method_name, block_def = nil, &callback)
     },
     {{ block_def }}
   )
-  {% debug  if flag? :DEBUG %}
+  {% debug if flag? :DEBUG %}
 
 end

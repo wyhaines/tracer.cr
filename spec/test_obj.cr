@@ -1,7 +1,7 @@
 class TestObj
   include Tracer
 
-  @@log : Hash(Tuple(String, UInt128), Array(Time::Span)) = Hash(Tuple(String, UInt128), Array(Time::Span)).new {|h,k| h[k] = [] of Time::Span}
+  @@log : Hash(Tuple(String, UInt128), Array(Time::Span)) = Hash(Tuple(String, UInt128), Array(Time::Span)).new { |h, k| h[k] = [] of Time::Span }
 
   @@trace_tracker : Hash(String, String) = Hash(String, String).new
 
@@ -103,7 +103,7 @@ class TestObj
 
   add_method_hooks(
     "a",
-    ->() {
+    ->{
       start_time = Time.monotonic
       @@log[{__trace_method_identifier__, __trace_method_call_counter__}] << start_time
       begin
@@ -128,7 +128,7 @@ class TestObj
 
   trace(
     "c",
-    ->() {@@log[{__trace_method_identifier__, __trace_method_call_counter__}] << Time.monotonic}
+    ->{ @@log[{__trace_method_identifier__, __trace_method_call_counter__}] << Time.monotonic }
   )
 
   trace(
@@ -153,43 +153,43 @@ class TestObj
 
   trace(
     "none",
-    ->() {@@trace_tracker["none"] = ""}
+    ->{ @@trace_tracker["none"] = "" }
   )
 
-  trace("also_none") {@@trace_tracker["also_none"] = ""}
+  trace("also_none") { @@trace_tracker["also_none"] = "" }
 
   trace(
     "one",
-    ->(method_name : String) {@@trace_tracker["one"] = method_name}
+    ->(method_name : String) { @@trace_tracker["one"] = method_name }
   )
 
-  trace("also_one") {|method_name| @@trace_tracker["also_one"] = method_name}
+  trace("also_one") { |method_name| @@trace_tracker["also_one"] = method_name }
 
   trace(
     "two",
-    ->(method_name : String, phase : Symbol) {@@trace_tracker["two"] = "#{method_name}|#{phase}"}
+    ->(method_name : String, phase : Symbol) { @@trace_tracker["two"] = "#{method_name}|#{phase}" }
   )
 
-  trace("also_two") {|method_name, phase| @@trace_tracker["also_two"] = "#{method_name}|#{phase}"}
+  trace("also_two") { |method_name, phase| @@trace_tracker["also_two"] = "#{method_name}|#{phase}" }
 
   trace(
     "three",
-    ->(method_name : String, phase : Symbol, identifier : String) {@@trace_tracker["three"] = "#{method_name}|#{phase}|#{identifier}"}
+    ->(method_name : String, phase : Symbol, identifier : String) { @@trace_tracker["three"] = "#{method_name}|#{phase}|#{identifier}" }
   )
 
-  trace("also_three") {|method_name, phase, identifier| @@trace_tracker["also_three"] = "#{method_name}|#{phase}|#{identifier}"}
+  trace("also_three") { |method_name, phase, identifier| @@trace_tracker["also_three"] = "#{method_name}|#{phase}|#{identifier}" }
 
   trace(
     "four",
-    ->(method_name : String, phase : Symbol, identifier : String, counter : UInt128) {@@trace_tracker["four"] = "#{method_name}|#{phase}|#{identifier}|#{counter}"}
+    ->(method_name : String, phase : Symbol, identifier : String, counter : UInt128) { @@trace_tracker["four"] = "#{method_name}|#{phase}|#{identifier}|#{counter}" }
   )
 
-  trace("also_four") {|method_name, phase, identifier, counter| @@trace_tracker["also_four"] = "#{method_name}|#{phase}|#{identifier}|#{counter}"}
+  trace("also_four") { |method_name, phase, identifier, counter| @@trace_tracker["also_four"] = "#{method_name}|#{phase}|#{identifier}|#{counter}" }
 
   trace(
     "five",
-    ->(method_name : String, phase : Symbol, identifier : String, counter : UInt128, caller : TestObj) {@@trace_tracker["five"] = "#{method_name}|#{phase}|#{identifier}|#{counter}|#{caller}"}
+    ->(method_name : String, phase : Symbol, identifier : String, counter : UInt128, caller : TestObj) { @@trace_tracker["five"] = "#{method_name}|#{phase}|#{identifier}|#{counter}|#{caller}" }
   )
 
-  trace("also_five") {|method_name, phase, identifier, counter, caller| @@trace_tracker["also_five"] = "#{method_name}|#{phase}|#{identifier}|#{counter}|#{caller}"}
+  trace("also_five") { |method_name, phase, identifier, counter, caller| @@trace_tracker["also_five"] = "#{method_name}|#{phase}|#{identifier}|#{counter}|#{caller}" }
 end
