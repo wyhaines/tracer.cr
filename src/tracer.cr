@@ -49,6 +49,7 @@ module Tracer
       end
     %}
     {% end %}
+    {% if traced_methods.size > 0 %}
     TRACED_METHODS = {
       {% for pair in traced_methods %}
       { {{ pair[0] }}, {{ pair[1].id }} },
@@ -64,6 +65,7 @@ module Tracer
       },
       {% end %}
     }
+    {% end %}
     {% debug if flag? :DEBUG %}
   end
 end
