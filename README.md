@@ -4,8 +4,6 @@
 
 # Tracer.cr
 
-*WARNING: This code is alpha. Details about its interface may change.*
-  
 Tracer.cr provides a facility for attaching tracing code to methods in Crystal code.
 
 This library is a low level tracing interface. It provides a simple api to use to attach functionality to existing code. It is intended to be a building block for constructing higher level functionality - debugging, performance monitoring, or execution auditing, for example.
