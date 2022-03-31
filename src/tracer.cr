@@ -1,8 +1,7 @@
+require "./tracer/version"
+
 module Tracer
-  VERSION = "0.1.0"
-
   METHOD_COUNTER = [0_u128]
-
   TRACED_METHOD_NAMES = {} of Tuple(String, String) => Bool
 
   macro finished
