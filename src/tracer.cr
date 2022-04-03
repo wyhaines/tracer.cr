@@ -67,7 +67,7 @@ module Tracer
     }
     {% else %}
     TRACED_METHODS = Tuple.new
-    TRACED_METHODS_BY_RECEIVER = NamedTuple.new
+    TRACED_METHODS_BY_RECEIVER = {} of Nil => Nil
     {% end %}
     {% debug if flag? :DEBUG %}
   end
