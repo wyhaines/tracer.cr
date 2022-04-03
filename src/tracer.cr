@@ -65,6 +65,9 @@ module Tracer
       },
       {% end %}
     }
+    {% else %}
+    TRACED_METHODS = Tuple.new
+    TRACED_METHODS_BY_RECEIVER = NamedTuple.new
     {% end %}
     {% debug if flag? :DEBUG %}
   end
@@ -141,7 +144,6 @@ macro add_method_hooks(method_name, method_body = "", block_def = nil)
     __trace_method_call_counter__ = Tracer::METHOD_COUNTER[0]
     Tracer::METHOD_COUNTER[0] = Tracer::METHOD_COUNTER[0] &+ 1
     {% Tracer::TRACED_METHOD_NAMES[{method_name, trace_method_receiver.id.stringify}] = true %}
-    #Tracer::TRACED_METHODS << { {{ method_name }}, {{ trace_method_receiver.id.stringify }} }
     __trace_method_name__ = {{ method_name }}
     __trace_method_identifier__ = {{ trace_method_identifier }}
 
