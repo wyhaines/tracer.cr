@@ -164,7 +164,7 @@ describe Tracer do
   end
 
   it "has access to an Tuple of actual method names and receiver classes" do
-    Tracer::TRACED_METHODS.size.should eq 19
+    Tracer::TRACED_METHODS.size.should eq 20
     Tracer::TRACED_METHODS.includes?({"a", TestObj}).should be_true
     Tracer::TRACED_METHODS.includes?({"b", TestObj}).should be_true
     Tracer::TRACED_METHODS.includes?({"random", TestStruct}).should be_true
@@ -176,6 +176,13 @@ describe Tracer do
     Tracer::TRACED_METHODS_BY_RECEIVER[TestObj].includes?("a").should be_true
     Tracer::TRACED_METHODS_BY_RECEIVER[TestObj].includes?("b").should be_true
     Tracer::TRACED_METHODS_BY_RECEIVER[TestStruct].includes?("framed_value").should be_true
+  end
+
+  it "works if the callback defines the previous_def" do
+    obj = TestObj.new
+
+    obj.blck.should eq "block"
+    TestObj.trace_tracker["block"].should eq "block"
   end
 
   # The benchmark only runs when compiled in release mode.

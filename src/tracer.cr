@@ -186,9 +186,13 @@ macro trace(method_name, callback, block_def = nil)
       %}
       begin
         {{ callback.id }}.call({{ pre_args.join(", ").id }})
+        {% if !(callback.id.stringify =~ /previous_def/) %}
         previous_def
+        {% end %}
       ensure
+        {% if !(callback.id.stringify =~ /previous_def/) %}
         {{ callback.id }}.call({{ post_args.join(", ").id }})
+        {% end %}
       end
       {% else %}
       begin
@@ -282,11 +286,15 @@ macro trace(method_name, block_def = nil, &callback)
         ->({{ arg_types.join(", ").id }}) do
           {{ callback.body.id }}
         end.call({{ pre_args.join(", ").id }})
+        {% if !(callback.id.stringify =~ /previous_def/) %}
         previous_def
+        {% end %}
       ensure
+        {% if !(callback.id.stringify =~ /previous_def/) %}
         ->({{ arg_types.join(", ").id }}) do
           {{ callback.body.id }}
         end.call({{ post_args.join(", ").id }})
+        {% end %}
       end
     },
     {{ block_def }}

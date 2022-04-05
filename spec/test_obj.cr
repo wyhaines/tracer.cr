@@ -101,6 +101,14 @@ class TestObj
     five
   end
 
+  def blck
+    "block"
+  end
+
+  def do_yield
+    yield
+  end
+
   add_method_hooks(
     "a",
     ->{
@@ -192,4 +200,10 @@ class TestObj
   )
 
   trace("also_five") { |method_name, phase, identifier, counter, caller| @@trace_tracker["also_five"] = "#{method_name}|#{phase}|#{identifier}|#{counter}|#{caller}" }
+
+  trace("blck") do
+    @@trace_tracker["block"] = do_yield do
+      previous_def
+    end
+  end
 end
