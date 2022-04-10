@@ -110,18 +110,17 @@ class TestObj
   end
 
   add_method_hooks(
-    "a",
-    ->{
-      start_time = Time.monotonic
-      @@log[{__trace_method_identifier__, __trace_method_call_counter__}] << start_time
-      begin
-        previous_def
-      ensure
-        finish_time = Time.monotonic
-        @@log[{__trace_method_identifier__, __trace_method_call_counter__}] << finish_time
-      end
-    }
-  )
+    "a"
+  ) do
+    start_time = Time.monotonic
+    @@log[{__trace_method_identifier__, __trace_method_call_counter__}] << start_time
+    begin
+      previous_def
+    ensure
+      finish_time = Time.monotonic
+      @@log[{__trace_method_identifier__, __trace_method_call_counter__}] << finish_time
+    end
+  end
 
   def self.flag(method, phase, identifier, counter, caller)
     @@log[{identifier, counter}] << Time.monotonic

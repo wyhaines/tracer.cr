@@ -1,3 +1,3 @@
 module Tracer
-  VERSION = "0.2.3"
+  VERSION = {{ read_file("#{__DIR__}/../../VERSION").chomp }}
 end

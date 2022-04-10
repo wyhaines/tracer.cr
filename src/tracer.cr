@@ -1,7 +1,7 @@
 require "./tracer/version"
 
 module Tracer
-  METHOD_COUNTER = [0_u128]
+  METHOD_COUNTER      = [0_u128]
   TRACED_METHOD_NAMES = {} of Tuple(String, String) => Bool
 
   macro finished
@@ -78,7 +78,7 @@ end
 annotation Trace
 end
 
-macro add_method_hooks(method_name, method_body = "", block_def = nil)
+macro add_method_hooks(method_name, block_def = nil, &block)
   {%
     if method_name.includes?(".")
       receiver_name, method_name = method_name.split(".")
@@ -147,7 +147,7 @@ macro add_method_hooks(method_name, method_body = "", block_def = nil)
     __trace_method_name__ = {{ method_name }}
     __trace_method_identifier__ = {{ trace_method_identifier }}
 
-    {{ method_body.is_a?(StringLiteral) ? method_body.id : method_body.body.id.gsub(/previous_def\(\)/, "previous_def").id }}
+    {{ block.body.id.gsub(/previous_def\(\)/, "previous_def").id }} # TODO: Better way than a regexp?
   end
   {% end %}
   {% debug if flag? :DEBUG %}
@@ -156,7 +156,7 @@ end
 macro trace(method_name, callback, block_def = nil)
   add_method_hooks(
     {{ method_name }},
-    ->() {
+    {{ block_def }}) do
       {% if callback.is_a?(Block) || callback.is_a?(ProcLiteral) %}
       {%
         pre_args = [] of Nil
@@ -202,17 +202,14 @@ macro trace(method_name, callback, block_def = nil)
         {{ callback.id }}({{ method_name }}, :after, __trace_method_identifier__, __trace_method_call_counter__, self)
       end
       {% end %}
-    },
-    {{ block_def }}
-  )
+  end
   {% debug if flag? :DEBUG %}
-
 end
 
 macro trace(method_name, block_def = nil, &callback)
   add_method_hooks(
     {{ method_name }},
-    ->() {
+    {{ block_def }}) do
       {%
         pre_args = [] of Nil
         post_args = [] of Nil
@@ -296,9 +293,6 @@ macro trace(method_name, block_def = nil, &callback)
         end.call({{ post_args.join(", ").id }})
         {% end %}
       end
-    },
-    {{ block_def }}
-  )
+  end
   {% debug if flag? :DEBUG %}
-
 end
