@@ -167,38 +167,38 @@ class TestObj
 
   trace(
     "one",
-    ->(method_name : String) { @@trace_tracker["one"] = method_name }
+    ->(method_name : String) { @@trace_tracker["one"] = __trace_method_name__ }
   )
 
-  trace("also_one") { |method_name| @@trace_tracker["also_one"] = method_name }
+  trace("also_one") { @@trace_tracker["also_one"] = __trace_method_name__ }
 
   trace(
     "two",
     ->(method_name : String, phase : Symbol) { @@trace_tracker["two"] = "#{method_name}|#{phase}" }
   )
 
-  trace("also_two") { |method_name, phase| @@trace_tracker["also_two"] = "#{method_name}|#{phase}" }
+  trace("also_two") { @@trace_tracker["also_two"] = "#{__trace_method_name__}|#{__trace_phase__}" }
 
   trace(
     "three",
     ->(method_name : String, phase : Symbol, identifier : String) { @@trace_tracker["three"] = "#{method_name}|#{phase}|#{identifier}" }
   )
 
-  trace("also_three") { |method_name, phase, identifier| @@trace_tracker["also_three"] = "#{method_name}|#{phase}|#{identifier}" }
+  trace("also_three") { @@trace_tracker["also_three"] = "#{__trace_method_name__}|#{__trace_phase__}|#{__trace_method_identifier__}" }
 
   trace(
     "four",
     ->(method_name : String, phase : Symbol, identifier : String, counter : UInt128) { @@trace_tracker["four"] = "#{method_name}|#{phase}|#{identifier}|#{counter}" }
   )
 
-  trace("also_four") { |method_name, phase, identifier, counter| @@trace_tracker["also_four"] = "#{method_name}|#{phase}|#{identifier}|#{counter}" }
+  trace("also_four") {  @@trace_tracker["also_four"] = "#{__trace_method_name__}|#{__trace_phase__}|#{__trace_method_identifier__}|#{__trace_method_call_counter__}" }
 
   trace(
     "five",
     ->(method_name : String, phase : Symbol, identifier : String, counter : UInt128, caller : TestObj) { @@trace_tracker["five"] = "#{method_name}|#{phase}|#{identifier}|#{counter}|#{caller}" }
   )
 
-  trace("also_five") { |method_name, phase, identifier, counter, caller| @@trace_tracker["also_five"] = "#{method_name}|#{phase}|#{identifier}|#{counter}|#{caller}" }
+  trace("also_five") {  @@trace_tracker["also_five"] = "#{__trace_method_name__}|#{__trace_phase__}|#{__trace_method_identifier__}|#{__trace_method_call_counter__}|#{self}" }
 
   trace("blck") do
     @@trace_tracker["block"] = do_yield do
