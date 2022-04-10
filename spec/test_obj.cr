@@ -167,7 +167,7 @@ class TestObj
 
   trace(
     "one",
-    ->(method_name : String) { @@trace_tracker["one"] = __trace_method_name__ }
+    ->(method_name : String) { @@trace_tracker["one"] = method_name }
   )
 
   trace("also_one") { @@trace_tracker["also_one"] = __trace_method_name__ }
