@@ -1,4 +1,5 @@
 [![Tracer.cr CI](https://github.com/wyhaines/tracer.cr/actions/workflows/ci.yml/badge.svg)](https://github.com/wyhaines/tracer.cr/actions/workflows/ci.yml)
+[![Tracer.cr.cr Build Docs](https://github.com/wyhaines/tracer.cr/actions/workflows/build_docs.yml/badge.svg)](https://github.com/wyhaines/tracer.cr/actions/workflows/build_docs.yml)
 
 [![GitHub release](https://img.shields.io/github/release/wyhaines/tracer.cr.svg?style=for-the-badge)](https://github.com/wyhaines/tracer.cr/releases)
 ![GitHub commits since latest release (by SemVer)](https://img.shields.io/github/commits-since/wyhaines/tracer.cr/latest?style=for-the-badge)
