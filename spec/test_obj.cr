@@ -105,7 +105,7 @@ class TestObj
     "block"
   end
 
-  def do_yield
+  def do_yield(&)
     yield
   end
 
@@ -191,14 +191,14 @@ class TestObj
     ->(method_name : String, phase : Symbol, identifier : String, counter : UInt128) { @@trace_tracker["four"] = "#{method_name}|#{phase}|#{identifier}|#{counter}" }
   )
 
-  trace("also_four") {  @@trace_tracker["also_four"] = "#{__trace_method_name__}|#{__trace_phase__}|#{__trace_method_identifier__}|#{__trace_method_call_counter__}" }
+  trace("also_four") { @@trace_tracker["also_four"] = "#{__trace_method_name__}|#{__trace_phase__}|#{__trace_method_identifier__}|#{__trace_method_call_counter__}" }
 
   trace(
     "five",
     ->(method_name : String, phase : Symbol, identifier : String, counter : UInt128, caller : TestObj) { @@trace_tracker["five"] = "#{method_name}|#{phase}|#{identifier}|#{counter}|#{caller}" }
   )
 
-  trace("also_five") {  @@trace_tracker["also_five"] = "#{__trace_method_name__}|#{__trace_phase__}|#{__trace_method_identifier__}|#{__trace_method_call_counter__}|#{self}" }
+  trace("also_five") { @@trace_tracker["also_five"] = "#{__trace_method_name__}|#{__trace_phase__}|#{__trace_method_identifier__}|#{__trace_method_call_counter__}|#{self}" }
 
   trace("blck") do
     @@trace_tracker["block"] = do_yield do
