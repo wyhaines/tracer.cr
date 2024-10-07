@@ -1,5 +1,5 @@
 name: tracer
-version: 0.3.1
+version: 0.3.2
 
 authors:
   - Kirk Haines <wyhaines@gmail.com>
@@ -11,7 +11,6 @@ license: "Apache 2.0"
 dependencies:
   csuuid:
     github: wyhaines/csuuid.cr
-    branch: main
 
 development_dependencies:
   ameba:
